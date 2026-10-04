@@ -38,7 +38,7 @@ const SCHEMA = [
 
 const REQ = [
   'controle', 'emissao', 'cliente', 'doc', 'telefone', 'inicio',
-  'mot1_nome', 'mot1_cpf', 'mot1_cnh', 'vei1_placa', 'vei1_modelo'
+  'mot1_nome', 'mot1_cpf', 'vei1_placa', 'vei1_modelo'
 ];
 
 /* ==========================================================================
