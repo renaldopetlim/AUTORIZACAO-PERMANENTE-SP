@@ -3,7 +3,6 @@
    ========================================================================== */
 const SCHEMA = [
   ['1. Identificação', [
-    ['controle', 'Nº do pedido / Controle'],
     ['emissao', 'Data de emissão', 'date']
   ]],
   ['2. Cliente — Titular (Outorgante)', [
@@ -17,7 +16,7 @@ const SCHEMA = [
       ['120', '120 dias'], ['150', '150 dias'], ['180', '180 dias']
     ]],
     ['inicio', 'Início da vigência', 'date'],
-    ['fim', 'Válido até (Calculado)', 'date', 'readonly'] // Adicionado tipo readonly
+    ['fim', 'Válido até (Calculado)', 'date', 'readonly']
   ]],
   ['4. Portadores Autorizados (Ao menos 1 obrigatório)', [
     ['mot1_nome', '1º Motorista - Nome', 'text', 'full'],
@@ -37,7 +36,7 @@ const SCHEMA = [
 ];
 
 const REQ = [
-  'controle', 'emissao', 'cliente', 'doc', 'telefone', 'inicio',
+  'emissao', 'cliente', 'doc', 'telefone', 'inicio',
   'mot1_nome', 'mot1_cpf', 'vei1_placa', 'vei1_modelo'
 ];
 
@@ -314,7 +313,7 @@ function buildPDF(scaleFactor, logoBase64) {
   doc.text('RETIRADA NO CD ALÇA VIÁRIA · ASSINATURA EXCLUSIVA GOV.BR', W / 2, y + 4.5 * scaleFactor, { align: 'center' });
   y += 7.5 * scaleFactor;
 
-  renderGrid([['Nº DO PEDIDO / CONTROLE', getValue('controle')], ['DATA DE EMISSÃO', formatDate(getValue('emissao'))]]);
+  renderGrid([['DATA DE EMISSÃO', formatDate(getValue('emissao'))]]);
   y += 1.8 * scaleFactor;
 
   renderBar('1. DA DISTRIBUIDORA (EMITENTE / DEPOSITÁRIA)');
@@ -341,7 +340,6 @@ function buildPDF(scaleFactor, logoBase64) {
 
   renderBar('4. DOS PORTADORES AUTORIZADOS (MOTORISTAS)');
   renderTableRow([['NOME DO MOTORISTA', 2.5], ['CPF', 1], ['CNH', 1]], true);
-  // Imprime 4 linhas de motoristas como no documento original
   for(let i=1; i<=4; i++) {
       renderTableRow([[getValue(`mot${i}_nome`), 2.5], [getValue(`mot${i}_cpf`), 1], [getValue(`mot${i}_cnh`), 1]]);
   }
@@ -366,7 +364,6 @@ function buildPDF(scaleFactor, logoBase64) {
 
   renderBar('ASSINATURA ELETRÔNICA DO CLIENTE — GOV.BR (OBRIGATÓRIA)');
   
-  // Caixote para assinar no gov.br
   const govBoxHeight = 18 * scaleFactor;
   checkOverflow(govBoxHeight + 2);
   doc.setDrawColor(...COLOR_GRAY);
@@ -380,7 +377,6 @@ function buildPDF(scaleFactor, logoBase64) {
 
   renderParagraph('Válida somente com assinatura eletrônica gov.br do cliente titular · Lei nº 14.063/2020 · autenticidade em validar.iti.gov.br · consta apenas na via digital.', 7.4, 1.5, 'normal', COLOR_GRAY);
 
-  // Assinaturas Manuais
   y += 12 * scaleFactor;
   checkOverflow(12);
   const colWidth = (CW - 10) / 2;
@@ -397,7 +393,6 @@ function buildPDF(scaleFactor, logoBase64) {
   doc.text('Recebimento e arquivo da autorização (via impressa)', M + colWidth / 2, y + 7.0 * scaleFactor, { align: 'center' });
   doc.text('Assinatura por extenso · nome legível (sem rubrica)', M + colWidth + 10 + colWidth / 2, y + 7.0 * scaleFactor, { align: 'center' });
 
-  // Rodapé Fixo
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i); doc.setDrawColor(...COLOR_ORANGE); doc.setLineWidth(0.4); doc.line(M, 283, W - M, 283);
@@ -444,8 +439,10 @@ document.addEventListener('DOMContentLoaded', () => {
       try { logoBase64 = await getBase64ImageFromUrl('assets/logo.png'); } catch (e) {}
 
       const pdfDoc = buildAutoFitPDF(logoBase64);
-      const cleanCtrl = getValue('controle').replace(/[^\w-]+/g, '_') || 'Avulso';
-      const filename = `Autorizacao_Permanente_Controle_${cleanCtrl}.pdf`;
+      
+      // ALTERAÇÃO DO NOME DO ARQUIVO (Agora usa o nome do cliente)
+      const cleanCliente = getValue('cliente').replace(/[^\w-]/g, '_').substring(0, 30) || 'Avulso';
+      const filename = `Autorizacao_Permanente_${cleanCliente}.pdf`;
 
       let downloadsAPI = null;
       try { if (typeof claude !== 'undefined' && claude.use) downloadsAPI = await claude.use('downloads'); } catch (e) {}
