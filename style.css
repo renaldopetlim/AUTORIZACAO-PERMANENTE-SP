@@ -101,7 +101,7 @@ header {
 
 .hd img { 
   height: 70px; 
-  background: #ffffff; 
+  background: transparent; 
   border-radius: 6px; 
   padding: 3px; 
 }
