@@ -49,6 +49,14 @@ const onlyDigits = (str) => str.replace(/\D/g, '');
 
 const maskCPF = (str) => str.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
 const maskCNPJ = (str) => str.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, '$1.$2.$3/$4-$5');
+const maskPhone = (str) => {
+  let r = str.replace(/\D/g, '').slice(0, 11);
+  if (r.length === 0) return '';
+  if (r.length <= 2) return `(${r}`;
+  if (r.length <= 6) return `(${r.slice(0, 2)}) ${r.slice(2)}`;
+  if (r.length <= 10) return `(${r.slice(0, 2)}) ${r.slice(2, 6)}-${r.slice(6)}`;
+  return `(${r.slice(0, 2)}) ${r.slice(2, 7)}-${r.slice(7)}`;
+};
 
 const formatDate = (str) => {
   if (!str) return '';
@@ -170,6 +178,10 @@ function attachInputEvents() {
   $('doc').addEventListener('input', (e) => {
     const d = onlyDigits(e.target.value).slice(0, 14);
     e.target.value = d.length <= 11 ? maskCPF(d) : maskCNPJ(d);
+  });
+  
+  $('telefone').addEventListener('input', (e) => {
+    e.target.value = maskPhone(e.target.value);
   });
 
   // Aplica máscaras e Uppercase nos motoristas e veículos
