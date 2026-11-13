@@ -211,6 +211,43 @@ button {
   border: 1px solid var(--line); 
 }
 
+/* Grupos repetíveis (Motoristas / Veículos) */
+.rep-item + .rep-item {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+
+.rep-item[hidden],
+.rep-add[hidden] {
+  display: none;
+}
+
+.rep-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.rep-del {
+  background: transparent;
+  color: var(--err);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+}
+
+.rep-add {
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-style: dashed;
+  color: var(--acc);
+}
+
 .msg { 
   font-size: 0.78rem; 
   color: var(--err); 
