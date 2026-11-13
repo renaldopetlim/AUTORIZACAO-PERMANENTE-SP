@@ -18,22 +18,36 @@ const SCHEMA = [
     ['inicio', 'Início da vigência', 'date'],
     ['fim', 'Válido até (Calculado)', 'date', 'readonly']
   ]],
-  ['4. Portadores Autorizados (Ao menos 1 obrigatório)', [
-    ['mot1_nome', '1º Motorista - Nome', 'text', 'full'],
-    ['mot1_cpf', 'CPF'], ['mot1_cnh', 'CNH'],
-    ['mot2_nome', '2º Motorista - Nome (Opcional)', 'text', 'full'],
-    ['mot2_cpf', 'CPF'], ['mot2_cnh', 'CNH'],
-    ['mot3_nome', '3º Motorista - Nome (Opcional)', 'text', 'full'],
-    ['mot3_cpf', 'CPF'], ['mot3_cnh', 'CNH'],
-    ['mot4_nome', '4º Motorista - Nome (Opcional)', 'text', 'full'],
-    ['mot4_cpf', 'CPF'], ['mot4_cnh', 'CNH']
-  ]],
-  ['5. Veículos Autorizados (Ao menos 1 obrigatório)', [
-    ['vei1_placa', '1º Veículo - Placa'], ['vei1_modelo', 'Modelo / Cor'],
-    ['vei2_placa', '2º Veículo - Placa (Opcional)'], ['vei2_modelo', 'Modelo / Cor'],
-    ['vei3_placa', '3º Veículo - Placa (Opcional)'], ['vei3_modelo', 'Modelo / Cor']
-  ]]
+  ['4. Portadores Autorizados (Ao menos 1 obrigatório · máx. 6)', 'mot'],
+  ['5. Veículos Autorizados (Ao menos 1 obrigatório · máx. 4)', 'vei']
 ];
+
+// Grupos repetíveis: só o 1º aparece de início; os demais são adicionados sob demanda.
+// "required" lista os campos exigidos quando um grupo adicional tiver qualquer dado preenchido.
+const REPEATERS = {
+  mot: {
+    max: 6,
+    noun: 'Motorista',
+    addLabel: 'Adicionar motorista',
+    fields: (i) => [
+      [`mot${i}_nome`, i === 1 ? "1º Motorista - Nome" : "Nome", 'text', 'full'],
+      [`mot${i}_cpf`, 'CPF'], [`mot${i}_cnh`, 'CNH']
+    ],
+    required: (i) => [`mot${i}_nome`, `mot${i}_cpf`]
+  },
+  vei: {
+    max: 4,
+    noun: 'Veículo',
+    addLabel: 'Adicionar veículo',
+    fields: (i) => [
+      [`vei${i}_placa`, i === 1 ? "1º Veículo - Placa" : "Placa"], [`vei${i}_modelo`, 'Modelo / Cor']
+    ],
+    required: (i) => [`vei${i}_placa`, `vei${i}_modelo`]
+  }
+};
+
+// Quantidade de grupos visíveis de cada tipo
+const repCount = { mot: 1, vei: 1 };
 
 const REQ = [
   'emissao', 'cliente', 'doc', 'telefone', 'inicio',
@@ -145,8 +159,16 @@ function validateForm() {
     if (!isValid) setBad('doc', 'CPF/CNPJ inválido');
   }
 
+  // Grupos adicionais: se algo foi digitado, os campos principais passam a ser obrigatórios
+  Object.entries(REPEATERS).forEach(([key, cfg]) => {
+    for (let i = 2; i <= repCount[key]; i++) {
+      if (!groupHasData(key, i)) continue;
+      cfg.required(i).forEach((id) => { if (!getValue(id)) setBad(id, 'Campo obrigatório'); });
+    }
+  });
+
   // Valida todos os CPFs de motoristas que estiverem preenchidos
-  for(let i=1; i<=4; i++) {
+  for (let i = 1; i <= repCount.mot; i++) {
     const cpfVal = getValue(`mot${i}_cpf`);
     if (cpfVal && !validateCPF(cpfVal)) setBad(`mot${i}_cpf`, 'CPF inválido');
   }
@@ -155,24 +177,86 @@ function validateForm() {
   return ok;
 }
 
+const renderFields = (fields) => fields.map(([id, label, type, fullClass, options]) => `
+  <div class="${fullClass || ''}">
+    <label for="${id}">${label}${REQ.includes(id) ? ' *' : ''}</label>${type === 'select'
+      ? `<select id="${id}">${options.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('')}</select>`
+      : `<input id="${id}" type="${type === 'readonly' ? 'text' : (type || 'text')}" ${type === 'readonly' ? 'readonly tabindex="-1"' : ''} autocomplete="off">`
+    }
+    <div class="msg" id="m_${id}"></div>
+  </div>
+`).join('');
+
+const renderRepeater = (key) => {
+  const cfg = REPEATERS[key];
+  let html = '';
+  for (let i = 1; i <= cfg.max; i++) {
+    html += `
+      <div class="rep-item" id="${key}_grp${i}"${i > 1 ? ' hidden' : ''}>
+        ${i > 1 ? `
+          <div class="rep-head">
+            <span>${i}º ${cfg.noun}</span>
+            <button type="button" class="rep-del" data-rep="${key}" data-idx="${i}">Remover</button>
+          </div>` : ''}
+        <div class="g">${renderFields(cfg.fields(i))}</div>
+      </div>`;
+  }
+  return html + `<button type="button" class="sec rep-add" id="${key}_add" data-rep="${key}"></button>`;
+};
+
 function renderForm() {
-  $('f').innerHTML = SCHEMA.map(([title, fields]) => `
+  $('f').innerHTML = SCHEMA.map(([title, content]) => `
     <fieldset>
       <legend>${title}</legend>
-      <div class="g">
-        ${fields.map(([id, label, type, fullClass, options]) => `
-          <div class="${fullClass || ''}">
-            <label for="${id}">${label}${REQ.includes(id) ? ' *' : ''}</label>${type === 'select' 
-              ? `<select id="${id}">${options.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('')}</select>`
-              : `<input id="${id}" type="${type === 'readonly' ? 'text' : (type || 'text')}" ${type === 'readonly' ? 'readonly tabindex="-1"' : ''} autocomplete="off">`
-            }
-            <div class="msg" id="m_${id}"></div>
-          </div>
-        `).join('')}
-      </div>
+      ${typeof content === 'string' ? renderRepeater(content) : `<div class="g">${renderFields(content)}</div>`}
     </fieldset>
   `).join('');
 }
+
+/* ==========================================================================
+   GRUPOS REPETÍVEIS (Motoristas / Veículos)
+   ========================================================================== */
+const groupIds = (key, i) => REPEATERS[key].fields(i).map(([id]) => id);
+const groupHasData = (key, i) => groupIds(key, i).some((id) => getValue(id));
+
+const clearFieldState = (id) => {
+  $(id).classList.remove('bad');
+  $(`m_${id}`).textContent = '';
+};
+
+function updateRepeater(key) {
+  const cfg = REPEATERS[key];
+  for (let i = 1; i <= cfg.max; i++) $(`${key}_grp${i}`).hidden = i > repCount[key];
+  const btn = $(`${key}_add`);
+  btn.hidden = repCount[key] >= cfg.max;
+  btn.textContent = `+ ${cfg.addLabel} (${repCount[key]}/${cfg.max})`;
+}
+
+function addGroup(key) {
+  if (repCount[key] >= REPEATERS[key].max) return;
+  repCount[key]++;
+  updateRepeater(key);
+  $(groupIds(key, repCount[key])[0]).focus();
+}
+
+// Remove o grupo "idx" deslocando os grupos seguintes uma posição para cima
+function removeGroup(key, idx) {
+  const last = repCount[key];
+  for (let i = idx; i < last; i++) {
+    const dst = groupIds(key, i), src = groupIds(key, i + 1);
+    dst.forEach((id, n) => { $(id).value = $(src[n]).value; clearFieldState(id); });
+  }
+  groupIds(key, last).forEach((id) => { $(id).value = ''; clearFieldState(id); });
+  repCount[key]--;
+  updateRepeater(key);
+}
+
+// Lista apenas os grupos realmente preenchidos (para o PDF)
+const filledGroups = (key) => {
+  const out = [];
+  for (let i = 1; i <= repCount[key]; i++) if (groupHasData(key, i)) out.push(i);
+  return out;
+};
 
 function attachInputEvents() {
   $('doc').addEventListener('input', (e) => {
@@ -185,19 +269,27 @@ function attachInputEvents() {
   });
 
   // Aplica máscaras e Uppercase nos motoristas e veículos
-  for(let i=1; i<=4; i++) {
+  for (let i = 1; i <= REPEATERS.mot.max; i++) {
     $(`mot${i}_cpf`)?.addEventListener('input', (e) => {
       e.target.value = maskCPF(onlyDigits(e.target.value).slice(0, 11));
     });
     $(`mot${i}_nome`)?.addEventListener('blur', (e) => e.target.value = e.target.value.toUpperCase());
   }
 
-  for(let i=1; i<=3; i++) {
+  for (let i = 1; i <= REPEATERS.vei.max; i++) {
     $(`vei${i}_placa`)?.addEventListener('input', (e) => {
       e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 8);
     });
     $(`vei${i}_modelo`)?.addEventListener('blur', (e) => e.target.value = e.target.value.toUpperCase());
   }
+
+  // Botões de adicionar / remover motoristas e veículos
+  $('f').addEventListener('click', (e) => {
+    const add = e.target.closest('.rep-add');
+    const del = e.target.closest('.rep-del');
+    if (add) addGroup(add.dataset.rep);
+    if (del) removeGroup(del.dataset.rep, parseInt(del.dataset.idx, 10));
+  });
 
   $('cliente').addEventListener('blur', (e) => e.target.value = e.target.value.toUpperCase());
   
@@ -210,6 +302,7 @@ function resetForm() {
     if(i.tagName === 'SELECT') i.selectedIndex = 0;
     else i.value = '';
   });
+  Object.keys(REPEATERS).forEach((key) => { repCount[key] = 1; updateRepeater(key); });
   $('emissao').value = getToday();$('inicio').value = getToday();
   calcEndDate();
   $('st').textContent = '';
@@ -352,16 +445,16 @@ function buildPDF(scaleFactor, logoBase64) {
 
   renderBar('4. DOS PORTADORES AUTORIZADOS (MOTORISTAS)');
   renderTableRow([['NOME DO MOTORISTA', 2.5], ['CPF', 1], ['CNH', 1]], true);
-  for(let i=1; i<=4; i++) {
-      renderTableRow([[getValue(`mot${i}_nome`), 2.5], [getValue(`mot${i}_cpf`), 1], [getValue(`mot${i}_cnh`), 1]]);
-  }
+  filledGroups('mot').forEach((i) => {
+    renderTableRow([[getValue(`mot${i}_nome`), 2.5], [getValue(`mot${i}_cpf`), 1], [getValue(`mot${i}_cnh`), 1]]);
+  });
   y += 1.8 * scaleFactor;
 
   renderBar('5. DOS VEÍCULOS AUTORIZADOS');
   renderTableRow([['PLACA', 1], ['MODELO / COR', 2.5]], true);
-  for(let i=1; i<=3; i++) {
-      renderTableRow([[getValue(`vei${i}_placa`), 1], [getValue(`vei${i}_modelo`), 2.5]]);
-  }
+  filledGroups('vei').forEach((i) => {
+    renderTableRow([[getValue(`vei${i}_placa`), 1], [getValue(`vei${i}_modelo`), 2.5]]);
+  });
   y += 0.8 * scaleFactor;
   renderParagraph('Qualquer motorista listado pode conduzir qualquer veículo listado — a autorização vincula-se às pessoas e placas indicadas, não a combinações fixas.', 7.8, 1.5, 'italic', COLOR_GRAY);
   y += 1.8 * scaleFactor;

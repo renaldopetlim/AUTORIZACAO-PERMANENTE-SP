@@ -54,7 +54,7 @@ Por ser uma aplicação inteiramente *client-side* (Front-end puro), a execuçã
 
 1. O usuário preenche os dados do Cliente/Titular (Outorgante).
 2. Define a vigência da autorização (entre 30 e 180 dias).
-3. Cadastra até 4 motoristas e até 3 veículos (mínimo de 1 cada).
+3. Cadastra o 1º motorista e o 1º veículo (obrigatórios) e, se precisar, usa os botões **"+ Adicionar"** para incluir até 6 motoristas e 4 veículos. Apenas os itens preenchidos são impressos no PDF.
 4. Clica em **"Gerar PDF"**. O sistema valida os campos obrigatórios e a integridade dos CPFs/CNPJs.
 5. Um arquivo nomeado `Autorizacao_Permanente_[Nome_do_Cliente].pdf` é baixado automaticamente.
 6. O PDF deve ser enviado ao assinador oficial do Governo Federal (assinador.iti.br) para validação legal.
