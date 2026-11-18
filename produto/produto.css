@@ -121,6 +121,36 @@ body {
 
 .produto__selo.is-imagem img { max-height: 64px; }
 
+/* Especificações técnicas: lista abaixo da imagem */
+.produto__especificacoes {
+    margin: 0 4px 10px;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.produto__especificacoes[hidden] { display: none; }
+
+.produto__especificacoes > div {
+    display: flex;
+    gap: 6px;
+    padding: 3px 0;
+    border-bottom: 1px dotted var(--cor-borda-titulo);
+}
+
+.produto__especificacoes > div:last-child { border-bottom: none; }
+
+.produto__especificacoes dt {
+    flex: 0 0 auto;
+    font-weight: 700;
+}
+
+.produto__especificacoes dt::after { content: ":"; }
+
+.produto__especificacoes dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
 .produto__tabela {
     width: 100%;
     border-collapse: separate;

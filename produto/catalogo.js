@@ -33,7 +33,21 @@
         preencherEtiqueta(card.querySelector(".produto__marca"), produto.marca, "Marca");
         preencherEtiqueta(card.querySelector(".produto__selo"), produto.selo, "Selo");
 
-        var tbody = card.querySelector(".produto__tabela tbody");
+        var dl = card.querySelector(".produto__especificacoes");
+        (produto.especificacoes || []).forEach(function (esp) {
+            if (!esp || (!esp.nome && !esp.valor)) return;
+            var linha = document.createElement("div");
+            var dt = document.createElement("dt");
+            var dd = document.createElement("dd");
+            dt.textContent = esp.nome == null ? "" : esp.nome;
+            dd.textContent = esp.valor == null ? "" : esp.valor;
+            linha.appendChild(dt);
+            linha.appendChild(dd);
+            dl.appendChild(linha);
+        });
+        dl.hidden = !dl.children.length;
+
+        var tbody =card.querySelector(".produto__tabela tbody");
         (produto.itens || []).forEach(function (item) {
             var tr = document.createElement("tr");
             [item.codigo, item.descricao, item.embalagem].forEach(function (valor) {

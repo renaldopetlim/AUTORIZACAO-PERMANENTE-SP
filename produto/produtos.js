@@ -9,12 +9,15 @@
  *              aparece no canto superior esquerdo da foto    (opcional)
  * selo       – texto curto (ex.: "NOVO", "OFERTA") OU caminho de uma imagem de selo
  *              aparece no canto superior direito da foto     (opcional)
+ * especificacoes – ficha técnica, exibida em lista abaixo da imagem (opcional):
+ *   nome       – nome da característica (ex.: "Capacidade")
+ *   valor      – valor (ex.: "60 litros")
  * itens      – uma linha da tabela por código (pode ter várias):
  *   codigo     – código do produto
  *   descricao  – descrição / variação (ex.: "60L")
  *   embalagem  – tipo de embalagem (ex.: "UN", "CX")
  *
- * Deixe marca ou selo vazios ("") ou remova a linha para não exibir.
+ * Deixe marca, selo ou especificacoes vazios ("") ou remova a linha para não exibir.
  */
 window.PRODUTOS = [
     {
@@ -23,6 +26,9 @@ window.PRODUTOS = [
         alt: "Carrinho de mão de aço com caçamba laranja e pneu preto",
         marca: "",
         selo: "",
+        especificacoes: [
+            // { nome: "Capacidade", valor: "60 litros" },
+        ],
         itens: [
             { codigo: "204941", descricao: "60L", embalagem: "UN" }
         ]
