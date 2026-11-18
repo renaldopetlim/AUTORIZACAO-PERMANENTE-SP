@@ -3,34 +3,34 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Carrinho de Mão Aço Laranja</title>
+    <title>Catálogo de Produtos</title>
     <link rel="stylesheet" href="produto.css">
 </head>
 <body>
-    <article class="produto">
-        <h2 class="produto__titulo">CARR DE MÃO AÇO LARANJA</h2>
+    <!-- Os cards são gerados aqui a partir de produtos.js -->
+    <main id="catalogo" class="catalogo"></main>
 
-        <div class="produto__imagem">
-            <img src="carrinho-de-mao-aco-laranja-60l.png"
-                 alt="Carrinho de mão de aço com caçamba laranja e pneu preto">
-        </div>
+    <!-- Modelo de um card de produto -->
+    <template id="tpl-produto">
+        <article class="produto">
+            <h2 class="produto__titulo"></h2>
+            <div class="produto__imagem">
+                <img src="" alt="" loading="lazy">
+            </div>
+            <table class="produto__tabela">
+                <thead>
+                    <tr>
+                        <th>Cód.</th>
+                        <th>Descrição</th>
+                        <th>Emb.</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </article>
+    </template>
 
-        <table class="produto__tabela">
-            <thead>
-                <tr>
-                    <th>Cód.</th>
-                    <th>Descrição</th>
-                    <th>Emb.</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>204941</td>
-                    <td>60L</td>
-                    <td>UN</td>
-                </tr>
-            </tbody>
-        </table>
-    </article>
+    <script src="produtos.js"></script>
+    <script src="catalogo.js"></script>
 </body>
 </html>

@@ -1,3 +1,15 @@
+/* Ajuste as cores e medidas do catálogo aqui */
+:root {
+    --cor-texto: #231f20;
+    --cor-titulo: #3a3a3a;
+    --cor-fundo: #ffffff;
+    --cor-faixa: #f1f1f1;
+    --cor-borda-titulo: #d9d9d9;
+    --cor-cabecalho: #e6e7e8;
+    --card-largura: 391px;
+    --espaco: 16px;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,43 +17,54 @@
 }
 
 body {
-    background: #ffffff;
+    background: var(--cor-fundo);
     font-family: Arial, Helvetica, sans-serif;
-    color: #231f20;
-    padding: 16px;
+    color: var(--cor-texto);
+    padding: var(--espaco);
+}
+
+/* Grade de cards: quantas colunas couberem na tela */
+.catalogo {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), var(--card-largura)));
+    gap: 24px var(--espaco);
 }
 
 .produto {
     width: 100%;
-    max-width: 391px;
-    background: #ffffff;
+    max-width: var(--card-largura);
+    background: var(--cor-fundo);
+    display: flex;
+    flex-direction: column;
+    break-inside: avoid;
 }
 
-/* Título com faixa cinza clara e linha na base */
 .produto__titulo {
-    background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 100%);
-    border-bottom: 1px solid #d9d9d9;
+    background: linear-gradient(to bottom, var(--cor-fundo) 0%, var(--cor-faixa) 100%);
+    border-bottom: 1px solid var(--cor-borda-titulo);
     padding: 10px 12px 8px;
     text-align: center;
     font-size: 19px;
     font-weight: 900;
     letter-spacing: 0.2px;
-    color: #3a3a3a;
+    color: var(--cor-titulo);
 }
 
 .produto__imagem {
     display: flex;
     justify-content: center;
+    align-items: center;
+    aspect-ratio: 391 / 230;   /* mantém os cards alinhados mesmo com fotos diferentes */
     padding: 6px 0 4px;
 }
 
 .produto__imagem img {
     display: block;
-    width: 80%;
-    height: auto;
+    max-width: 80%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
-/* Tabela Cód. / Descrição / Emb. */
 .produto__tabela {
     width: 100%;
     border-collapse: separate;
@@ -51,15 +74,15 @@ body {
 }
 
 .produto__tabela th {
-    background: #e6e7e8;
+    background: var(--cor-cabecalho);
     font-weight: 700;
     padding: 4px 6px;
-    border-bottom: 2px solid #ffffff;
+    border-bottom: 2px solid var(--cor-fundo);
 }
 
 .produto__tabela td {
     padding: 4px 6px;
-    border-bottom: 1px solid #231f20;
+    border-bottom: 1px solid var(--cor-texto);
 }
 
 .produto__tabela th:nth-child(1),
@@ -70,3 +93,9 @@ body {
 
 .produto__tabela th:nth-child(3),
 .produto__tabela td:nth-child(3) { width: 24%; }
+
+/* Impressão: sem margens extras, cards não quebram entre páginas */
+@media print {
+    body { padding: 0; }
+    .produto { page-break-inside: avoid; }
+}
