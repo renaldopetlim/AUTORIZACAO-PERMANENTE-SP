@@ -1,0 +1,72 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #231f20;
+    padding: 16px;
+}
+
+.produto {
+    width: 100%;
+    max-width: 391px;
+    background: #ffffff;
+}
+
+/* Título com faixa cinza clara e linha na base */
+.produto__titulo {
+    background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 100%);
+    border-bottom: 1px solid #d9d9d9;
+    padding: 10px 12px 8px;
+    text-align: center;
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    color: #3a3a3a;
+}
+
+.produto__imagem {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 4px;
+}
+
+.produto__imagem img {
+    display: block;
+    width: 80%;
+    height: auto;
+}
+
+/* Tabela Cód. / Descrição / Emb. */
+.produto__tabela {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4px 0;
+    text-align: center;
+    font-size: 15px;
+}
+
+.produto__tabela th {
+    background: #e6e7e8;
+    font-weight: 700;
+    padding: 4px 6px;
+    border-bottom: 2px solid #ffffff;
+}
+
+.produto__tabela td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #231f20;
+}
+
+.produto__tabela th:nth-child(1),
+.produto__tabela td:nth-child(1) { width: 26%; }
+
+.produto__tabela th:nth-child(2),
+.produto__tabela td:nth-child(2) { width: 50%; }
+
+.produto__tabela th:nth-child(3),
+.produto__tabela td:nth-child(3) { width: 24%; }
